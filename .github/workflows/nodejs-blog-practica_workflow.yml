@@ -69,8 +69,6 @@ jobs:
           # Desactiva 'exit on error' en Bash para que si Cypress falla, este script continúe
           set +e
           npx cypress run
-          echo $? > cypress_exitcode.txt
-          echo "Cypress exit code was: $(cat cypress_exitcode.txt)"
           EXIT_CODE=$?
           set -e
 
