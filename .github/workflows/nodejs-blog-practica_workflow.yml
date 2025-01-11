@@ -29,30 +29,29 @@ jobs:
         run: npm run lint
 
   cypress_job:
-    # Indica que este job depende de que termine linter_job
     needs: linter_job
     runs-on: ubuntu-latest
 
     steps:
-      # Descarga el contenido del repositorio en la máquina virtual
+      # Paso 1: Descarga el contenido del repositorio en la máquina virtual
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Instala las dependencias definidas en package.json
+      # Paso 2: Instala las dependencias definidas en package.json
       - name: Install dependencies
         run: npm install
 
-      # Construimos la app Next antes de arrancarla
+      # Paso 3: Construimos la app Next antes de arrancarla
       - name: Build Next app
         run: npm run build
 
-      # Arranca el servidor en 2º plano
+      # Paso 4: Arranca el servidor en segundo plano para que Cypress pueda interactuar con él
       - name: Start Next server
         run: |
           npm run start &
           echo "Server started in background"
 
-      # Espera hasta que localhost:3000 esté listo (usando curl)
+      # Paso 5: Espera hasta que localhost:3000 esté listo usando curl
       - name: Wait for server
         run: |
           until curl --silent --head --fail http://localhost:3000; do
@@ -61,7 +60,7 @@ jobs:
           done
           echo "Server is ready!"
 
-      # Ejecuta los tests de Cypress, guarda exit code en cypress_exitcode.txt
+      # Paso 6: Ejecuta los tests de Cypress y guarda el código de salida en un archivo cypress_exitcode.txt
       - name: Run Cypress
         id: run_cypress
         continue-on-error: true
@@ -77,7 +76,7 @@ jobs:
           ls -l
           cat cypress_exitcode.txt
 
-      # Lee el exit code y crea result.txt con "success" o "failure"
+      # Paso 7: Evalúa los resultados de Cypress y crea result.txt con "success" o "failure"
       - name: Evaluate Cypress results
         run: |
           exit_code=$(cat cypress_exitcode.txt)
@@ -91,7 +90,7 @@ jobs:
           echo "Contenido de result.txt:"
           cat result.txt
 
-      # Sube el archivo result.txt como artefacto
+      # Paso 8: Sube el archivo result.txt como artefacto para que pueda ser descargado
       - name: Upload Cypress results
         uses: actions/upload-artifact@v4
         with:
