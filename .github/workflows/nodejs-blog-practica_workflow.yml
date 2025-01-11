@@ -55,15 +55,19 @@ jobs:
 
       # Paso 5: Guardar los resultados de las pruebas de Cypress en un archivo `result.txt`.
       - name: Save Cypress test results
+        id: save_results
         run: |
-          # Verificar si Cypress falló
-          if [ "${CYPRESS_RUN_FAILED}" == "true" ]; then
-            echo "failure" > result.txt
-            echo "Cypress tests failed"
-            # Copiar los videos de pruebas fallidas (si existen)
+          # Verificar el código de salida de Cypress
+          CYPRESS_EXIT_CODE=$?
+
+          if [ $CYPRESS_EXIT_CODE -ne 0 ]; then
+            echo "failure" >> result.txt
+            echo "Cypress tests failed with exit code $CYPRESS_EXIT_CODE"
+            echo "result=failure" >> $GITHUB_ENV  # Establecer una variable de entorno para el estado
             cp cypress/videos/**/*.mp4 . || true
           else
-            echo "success" > result.txt
+            echo "success" >> result.txt
+            echo "result=success" >> $GITHUB_ENV  # Establecer una variable de entorno para el estado
           fi
 
           # Mostrar el contenido de result.txt
@@ -78,5 +82,5 @@ jobs:
 
       # Forzar que el job falle si Cypress falló
       - name: Force failure if Cypress failed
-        if: ${{ steps['Save Cypress test results'].outcome == 'failure' }}
+        if: ${{ steps.save_results.outputs.result == 'failure' }}
         run: exit 1
