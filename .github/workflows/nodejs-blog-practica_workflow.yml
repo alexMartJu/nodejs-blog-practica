@@ -75,3 +75,8 @@ jobs:
         with:
           name: cypress-results
           path: result.txt
+
+      # Forzar que el job falle si Cypress falló
+      - name: Force failure if Cypress failed
+        if: ${{ steps['Save Cypress test results'].outcome == 'failure' }}
+        run: exit 1
