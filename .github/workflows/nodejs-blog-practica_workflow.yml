@@ -46,19 +46,21 @@ jobs:
 
       # Paso 4: Ejecutar las pruebas de Cypress usando la acción oficial `cypress-io/github-action`.
       - name: Run Cypress tests
-        uses: cypress-io/github-action@v6
-        with:
-          start: npm run start
-          wait-on: "http://localhost:3000"
-          wait-on-timeout: 60
+        id: run_cypress
+        run: |
+          npm run start &
+          sleep 5  # Wait for the server to be ready
+          npx cypress run --headless
         continue-on-error: true
 
       # Paso 5: Guardar los resultados de las pruebas de Cypress en un archivo `result.txt`.
       - name: Save Cypress test results
-        id: save_results
         run: |
+          # Capturar el código de salida de Cypress
+          CYPRESS_EXIT_CODE=$?
+
           # Verificar si Cypress falló
-          if [ $? -ne 0 ]; then
+          if [ $CYPRESS_EXIT_CODE -ne 0 ]; then
             echo "failure" > result.txt
             echo "Cypress tests failed"
           else
