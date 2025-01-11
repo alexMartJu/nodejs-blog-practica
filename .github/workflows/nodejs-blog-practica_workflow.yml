@@ -48,27 +48,27 @@ jobs:
       - name: Run Cypress tests
         id: run_cypress
         run: |
-          npm run start &
-          sleep 5  # Wait for the server to be ready
-          npx cypress run --headless
+          start: npm run start
+          wait-on: "http://localhost:3000"
+          wait-on-timeout: 60
+          headless: true
         continue-on-error: true
 
       # Paso 5: Guardar los resultados de las pruebas de Cypress en un archivo `result.txt`.
       - name: Save Cypress test results
         run: |
-          # Capturar el código de salida de Cypress
+          # Captura el código de salida de Cypress
           CYPRESS_EXIT_CODE=$?
 
-          # Verificar si Cypress falló
+          # Verifica si el código de salida es diferente de 0 (indicando fallos)
           if [ $CYPRESS_EXIT_CODE -ne 0 ]; then
             echo "failure" > result.txt
             echo "Cypress tests failed"
+            exit 1  # Esto marca el job como fallido
           else
             echo "success" > result.txt
+            echo "Cypress tests passed"
           fi
-
-          # Mostrar el contenido de result.txt
-          cat result.txt
 
       # Paso 6: Subir el archivo `result.txt` como artefacto llamado "cypress-results".
       - name: Upload artifact
