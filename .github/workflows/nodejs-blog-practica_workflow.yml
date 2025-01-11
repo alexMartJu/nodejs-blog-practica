@@ -56,17 +56,14 @@ jobs:
       # Paso 5: Guardar los resultados de las pruebas de Cypress en un archivo `result.txt`.
       - name: Save Cypress test results
         run: |
-          # Capturar el código de salida del paso anterior (Cypress)
-          CYPRESS_EXIT_CODE=$?
-
-          # Verificar si Cypress pasó o falló
-          if [ $CYPRESS_EXIT_CODE -eq 0 ]; then
-            echo "success" > result.txt
-          else
+          # Verificar si Cypress falló
+          if [ "${CYPRESS_RUN_FAILED}" == "true" ]; then
             echo "failure" > result.txt
-            echo "Cypress tests failed with exit code $CYPRESS_EXIT_CODE"
+            echo "Cypress tests failed"
             # Copiar los videos de pruebas fallidas (si existen)
             cp cypress/videos/**/*.mp4 . || true
+          else
+            echo "success" > result.txt
           fi
 
           # Mostrar el contenido de result.txt
