@@ -1,0 +1,29 @@
+name: nodejs-blog-practica
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  linter_job:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Paso 1: Descargar el código del repositorio en la máquina virtual para que los siguientes pasos puedan trabajar con él.
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Paso 2: Configurar Node.js en la máquina virtual, usando la versión 16. Esto asegura que el entorno esté listo para ejecutar aplicaciones Node.js.
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      # Paso 3: Instalar las dependencias definidas en el archivo "package.json". Esto asegura que las bibliotecas necesarias para el proyecto estén disponibles.
+      - name: Install dependencies
+        run: npm install
+
+      # Paso 4: Ejecutar el linter para verificar la sintaxis y el estilo del código.
+      - name: Run Linter
+        run: npm run lint
