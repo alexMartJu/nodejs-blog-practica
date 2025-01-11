@@ -78,3 +78,8 @@ jobs:
         with:
           name: cypress-results
           path: result.txt
+
+      # Paso 7: Forzar que el job falle si Cypress falló
+      - name: Force failure if Cypress failed
+        if: failure()  
+        run: exit 1
