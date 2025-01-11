@@ -29,50 +29,73 @@ jobs:
         run: npm run lint
 
   cypress_job:
+    # Indica que este job depende de que termine linter_job
     needs: linter_job
     runs-on: ubuntu-latest
+
     steps:
-      # Paso 1: Descargar el código fuente del repositorio en la máquina virtual.
-      - name: Checkout code
+      # Descarga el contenido del repositorio en la máquina virtual
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Paso 2: Instalar las dependencias del proyecto definidas en el archivo "package.json".
+      # Instala las dependencias definidas en package.json
       - name: Install dependencies
         run: npm install
 
-      # Paso 3: Paso adicional para construir la aplicación Next.js
-      - name: Build the Next.js application
+      # Construimos la app Next antes de arrancarla
+      - name: Build Next app
         run: npm run build
 
-      # Paso 4: Ejecutar las pruebas de Cypress usando la acción oficial `cypress-io/github-action`.
-      - name: Run Cypress tests
+      # Arranca el servidor en 2º plano
+      - name: Start Next server
+        run: |
+          npm run start &
+          echo "Server started in background"
+
+      # Espera hasta que localhost:3000 esté listo (usando curl)
+      - name: Wait for server
+        run: |
+          until curl --silent --head --fail http://localhost:3000; do
+            echo "Waiting for server to be available..."
+            sleep 5
+          done
+          echo "Server is ready!"
+
+      # Ejecuta los tests de Cypress, guarda exit code en cypress_exitcode.txt
+      - name: Run Cypress
         id: run_cypress
-        run: |
-          start: npm run start
-          wait-on: "http://localhost:3000"
-          wait-on-timeout: 60
-          headless: true
         continue-on-error: true
-
-      # Paso 5: Guardar los resultados de las pruebas de Cypress en un archivo `result.txt`.
-      - name: Save Cypress test results
         run: |
-          # Captura el código de salida de Cypress
-          CYPRESS_EXIT_CODE=$?
+          # Desactiva 'exit on error' en Bash para que si Cypress falla, este script continúe
+          set +e
+          npx cypress run
+          echo $? > cypress_exitcode.txt
+          echo "Cypress exit code was: $(cat cypress_exitcode.txt)"
+          EXIT_CODE=$?
+          set -e
 
-          # Verifica si el código de salida es diferente de 0 (indicando fallos)
-          if [ $CYPRESS_EXIT_CODE -ne 0 ]; then
-            echo "failure" > result.txt
-            echo "Cypress tests failed"
-            exit 1  # Esto marca el job como fallido
-          else
+          echo "Cypress exit code was: $EXIT_CODE"
+          echo "$EXIT_CODE" > cypress_exitcode.txt
+          ls -l
+          cat cypress_exitcode.txt
+
+      # Lee el exit code y crea result.txt con "success" o "failure"
+      - name: Evaluate Cypress results
+        run: |
+          exit_code=$(cat cypress_exitcode.txt)
+
+          if [ "$exit_code" -eq 0 ]; then
             echo "success" > result.txt
-            echo "Cypress tests passed"
+          else
+            echo "failure" > result.txt
           fi
 
-      # Paso 6: Subir el archivo `result.txt` como artefacto llamado "cypress-results".
-      - name: Upload artifact
+          echo "Contenido de result.txt:"
+          cat result.txt
+
+      # Sube el archivo result.txt como artefacto
+      - name: Upload Cypress results
         uses: actions/upload-artifact@v4
         with:
-          name: cypress-results
+          name: cypress-result
           path: result.txt
