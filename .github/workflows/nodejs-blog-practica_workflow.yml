@@ -27,3 +27,43 @@ jobs:
       # Paso 4: Ejecutar el linter para verificar la sintaxis y el estilo del código.
       - name: Run Linter
         run: npm run lint
+
+  cypress_job:
+    needs: linter_job
+    runs-on: ubuntu-latest
+    steps:
+      # Paso 1: Descargar el código fuente del repositorio en la máquina virtual.
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Paso 2: Instalar las dependencias del proyecto definidas en el archivo "package.json".
+      - name: Install dependencies
+        run: npm install
+
+      # Paso 3: Ejecutar las pruebas de Cypress usando la acción oficial `cypress-io/github-action`.
+      - name: Run Cypress tests
+        uses: cypress-io/github-action@v6
+        with:
+          start: npm run start
+          wait-on: "http://localhost:3000"
+          wait-on-timeout: 60
+        continue-on-error: true
+
+      # Paso 4: Guardar los resultados de las pruebas de Cypress en un archivo `result.txt`.
+      - name: Save Cypress test results
+        run: |
+          if [ $? -eq 0 ]; then 
+          echo "success" > result.txt
+          else
+          echo "failure" > result.txt
+          ls -l
+          cp cypress/videos/*.mp4 . || true
+          fi
+          cat result.txt
+
+      # Paso 5: Subir el archivo `result.txt` como artefacto llamado "cypress-results".
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-results
+          path: result.txt
