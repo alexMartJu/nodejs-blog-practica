@@ -40,20 +40,21 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      # Paso 3: Paso adicional para construir la aplicación Next.js
+      # Paso 3: Paso adicional para construir la aplicación Next.js.
       - name: Build the Next.js application
         run: npm run build
 
-      # Paso 4: Ejecutar las pruebas de Cypress usando la acción oficial `cypress-io/github-action`.
-      - name: Run Cypress tests
-        uses: cypress-io/github-action@v6
-        with:
-          start: npm run start
-          wait-on: "http://localhost:3000"
-          wait-on-timeout: 60
-        continue-on-error: true
+      # Paso 4: Arrancar el servidor para que Cypress pueda realizar los tests.
+      - name: Start the server
+        run: npm run start &
+        # Usamos el `&` para que el servidor se ejecute en segundo plano, permitiendo que los siguientes pasos continúen ejecutándose.
 
-      # Paso 5: Guardar los resultados de las pruebas de Cypress en un archivo `result.txt`.
+      # Paso 5: Ejecutar los tests de Cypress manualmente con el comando npm run cypress.
+      - name: Run Cypress tests manually
+        run: npm run cypress
+        continue-on-error: true # Esto sigue permitiendo que el job continúe incluso si Cypress falla.
+
+      # Paso 6: Guardar los resultados de las pruebas de Cypress en un archivo `result.txt`.
       - name: Save Cypress test results
         run: |
           # Capturar el código de salida del paso anterior (Cypress)
@@ -72,14 +73,9 @@ jobs:
           # Mostrar el contenido de result.txt
           cat result.txt
 
-      # Paso 6: Subir el archivo `result.txt` como artefacto llamado "cypress-results".
+      # Paso 7: Subir el archivo `result.txt` como artefacto llamado "cypress-results".
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: cypress-results
           path: result.txt
-
-      # Paso 7: Forzar que el job falle si Cypress falló
-      - name: Force failure if Cypress failed
-        if: failure()  
-        run: exit 1
