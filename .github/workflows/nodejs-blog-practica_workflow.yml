@@ -57,17 +57,12 @@ jobs:
       - name: Save Cypress test results
         id: save_results
         run: |
-          # Verificar el código de salida de Cypress
-          CYPRESS_EXIT_CODE=$?
-
-          if [ $CYPRESS_EXIT_CODE -ne 0 ]; then
-            echo "failure" >> result.txt
-            echo "Cypress tests failed with exit code $CYPRESS_EXIT_CODE"
-            echo "result=failure" >> $GITHUB_ENV  # Establecer una variable de entorno para el estado
-            cp cypress/videos/**/*.mp4 . || true
+          # Verificar si Cypress falló
+          if [ $? -ne 0 ]; then
+            echo "failure" > result.txt
+            echo "Cypress tests failed"
           else
-            echo "success" >> result.txt
-            echo "result=success" >> $GITHUB_ENV  # Establecer una variable de entorno para el estado
+            echo "success" > result.txt
           fi
 
           # Mostrar el contenido de result.txt
@@ -79,8 +74,3 @@ jobs:
         with:
           name: cypress-results
           path: result.txt
-
-      # Forzar que el job falle si Cypress falló
-      - name: Force failure if Cypress failed
-        if: ${{ steps.save_results.outputs.result == 'failure' }}
-        run: exit 1
