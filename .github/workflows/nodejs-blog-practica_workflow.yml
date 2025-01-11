@@ -96,3 +96,40 @@ jobs:
         with:
           name: cypress-result
           path: result.txt
+
+  add_badge_job:
+    runs-on: ubuntu-latest
+    needs: cypress_job
+
+    steps:
+      # Paso 1: Descargar el código del repositorio en la máquina virtual para que los siguientes pasos puedan trabajar con él.
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Paso 2: Descargar el artefacto creado en el job 'cypress_job'.
+      - name: Download cypress artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: cypress-result
+          path: . # Se descarga en el directorio raíz
+
+      # Paso 3: Establecer un output con la lectura de 'result.txt' para el resultado de Cypress.
+      - name: Set outcome output
+        id: set_outcome
+        run: echo "::set-output name=cypress_outcome::$(cat result.txt)"
+
+      # Paso 4: Llamar a la acción personalizada que actualiza el README con un badge.
+      - name: Update README with badge
+        uses: ./ #action.yaml
+        with:
+          # outcome es el valor que contiene "success" o "failure"
+          outcome: ${{ steps.set_outcome.outputs.cypress_outcome }}
+
+      # Paso 5: Realizar un commit y push de los cambios al README.
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add README.md
+          git commit -m "Actualizando README con badge de Cypress"
+          git push

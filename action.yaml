@@ -1,0 +1,18 @@
+name: "Update README Badge" # Nombre de la acción personalizada.
+description: "Modifica el README.md con el badge apropiado en función del outcome de Cypress" # Breve descripción de lo que hace la acción.
+
+inputs:
+  outcome: # Define un parámetro de entrada llamado 'outcome'.
+    description: "Result of Cypress tests (success or failure)" # Explica qué se espera en este input.
+    required: true # Indica que el parámetro 'outcome' es obligatorio.
+
+runs:
+  using: "composite" # Especifica que la acción utiliza múltiples pasos combinados.
+  steps:
+    - name: Ensure script is executable # Paso 1: Verifica que el script sea ejecutable.
+      shell: bash # Indica que el comando se ejecutará en Bash.
+      run: chmod +x update-readme-badge.sh # Cambia los permisos de 'update-readme-badge.sh' para que sea ejecutable.
+
+    - name: Execute script # Paso 2: Ejecuta el script principal.
+      shell: bash # Especifica Bash como shell.
+      run: ./update-readme-badge.sh "${{ inputs.outcome }}" # Llama al script 'update-readme-badge.sh' pasando como argumento el valor del input 'outcome'.
