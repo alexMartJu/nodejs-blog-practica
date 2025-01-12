@@ -186,3 +186,47 @@ jobs:
             - cypress_job: ${{ needs.cypress_job.result }}
             - add_badge_job: ${{ needs.add_badge_job.result }}
             - deploy_job: ${{ needs.deploy_job.result }}
+
+  metrics_job:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Paso 1: Checkout current repository
+      - name: Checkout current repository
+        uses: actions/checkout@v3
+      
+      # Paso 2: Create metrics
+      - name: Create metrics
+        uses: lowlighter/metrics@latest
+        with:
+          token: ${{ secrets.METRICS_TOKEN }}
+          user: fmontesdev
+          base: repositories          
+          template: classic           
+          config_timezone: Europe/Madrid
+          plugin_languages: yes
+          plugin_languages_sections: most-used
+          plugin_languages_indepth: yes
+          plugin_languages_recent_load: 20
+          plugin_languages_recent_days: 14
+          filename: github-metrics.svg
+
+      # Paso 3: Replace metrics block with markdown image using sed
+      - name: Replace metrics block with markdown image using sed
+        run: |
+          sed -i -E '/<!--START_SECTION:metrics-->/, /<!--END_SECTION:metrics-->/c\
+          <!--START_SECTION:metrics-->\
+          ![GitHub Metrics](/github-metrics.svg)\
+          <!--END_SECTION:metrics-->' README.md
+          echo "README.md after replacement:"
+          cat README.md
+
+      # Paso 4: Final commit and push
+      - name: Final commit and push
+        run: |
+          git config --global user.email "alex.mart.juan@gmail.com"
+          git config --global user.name "alexMartJu"
+          git add .
+          git commit -m "Añadidas métricas" || echo "No changes to commit"
+          git pull --rebase --strategy-option=theirs
+          git push origin main
