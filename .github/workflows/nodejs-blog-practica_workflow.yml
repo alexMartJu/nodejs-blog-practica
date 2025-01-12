@@ -131,8 +131,7 @@ jobs:
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add README.md
-          git commit -m "Actualizando README con badge de Cypress" || echo "No changes to commit"
-          git pull --rebase --strategy-option=theirs origin main
+          git commit -m "Actualizando README con badge de Cypress"
           git push origin main
 
   deploy_job:
@@ -190,6 +189,7 @@ jobs:
 
   metrics_job:
     runs-on: ubuntu-latest
+    needs: add_badge_job
 
     steps:
       # Paso 1: Checkout current repository
