@@ -173,7 +173,6 @@ jobs:
           # Configuración de las credenciales de Gmail desde los secretos de GitHub
           GMAIL_USER: ${{ secrets.GMAIL_USER }}
           GMAIL_PASS: ${{ secrets.GMAIL_PASS }}
-        
         with:
           # Dirección de correo electrónico a la que se enviará la notificación
           to: ${{ secrets.PERSONAL_EMAIL }}
