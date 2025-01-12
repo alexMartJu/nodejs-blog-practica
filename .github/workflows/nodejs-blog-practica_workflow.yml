@@ -130,9 +130,9 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git pull origin main --rebase
           git add README.md
-          git commit -m "Actualizando README con badge de Cypress"
+          git commit -m "Actualizando README con badge de Cypress" || echo "No changes to commit"
+          git pull origin main --rebase
           git push origin main
 
   deploy_job:
