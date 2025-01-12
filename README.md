@@ -13,6 +13,7 @@ RESULTADOS DE LOS ÚLTIMOS TESTS
 ![Cypress test badge](https://img.shields.io/badge/test-failure-red)
 ![Cypress test badge](https://img.shields.io/badge/test-failure-red)
 ![Cypress test badge](https://img.shields.io/badge/test-failure-red)
+![Cypress test badge](https://img.shields.io/badge/test-failure-red)
 
 # Proyecto: Workflow con GitHub Actions
 
@@ -176,6 +177,7 @@ README_FILE="README.md"
 BADGE_FAILURE="https://img.shields.io/badge/test-failure-red"
 BADGE_SUCCESS="https://img.shields.io/badge/tested%20with-Cypress-04C38E.svg"
 SEARCH_TEXT="RESULTADOS DE LOS ÚLTIMOS TESTS"
+![Cypress test badge](https://img.shields.io/badge/test-failure-red)
 
 if [ "$OUTCOME" = "success" ]; then
     BADGE="$BADGE_SUCCESS"
