@@ -12,6 +12,7 @@ RESULTADOS DE LOS ÚLTIMOS TESTS
 ![Cypress test badge](https://img.shields.io/badge/test-failure-red)
 ![Cypress test badge](https://img.shields.io/badge/test-failure-red)
 ![Cypress test badge](https://img.shields.io/badge/test-failure-red)
+![Cypress test badge](https://img.shields.io/badge/test-failure-red)
 
 <!--START_SECTION:metrics-->
 
