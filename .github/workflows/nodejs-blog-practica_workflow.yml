@@ -133,3 +133,22 @@ jobs:
           git add README.md
           git commit -m "Actualizando README con badge de Cypress"
           git push
+
+  deploy_job:
+    runs-on: ubuntu-latest
+    needs: cypress_job
+    
+    steps:
+      # Paso 1: Descargar el código del repositorio en la máquina virtual para que los siguientes pasos puedan trabajar con él.
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      # Paso 2: Desplegar la aplicación en Vercel
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: ./
+          vercel-args: "--prod"
