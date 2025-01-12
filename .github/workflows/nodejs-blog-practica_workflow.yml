@@ -152,3 +152,38 @@ jobs:
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           working-directory: ./
           vercel-args: "--prod"
+
+  notification_job:
+    runs-on: ubuntu-latest
+    needs: [linter_job, cypress_job, add_badge_job, deploy_job]
+    if: always()
+
+    steps:
+      # Paso 1: Necesita acceso a archivos del repositorio
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        # Este paso descarga el código fuente del repositorio para que el workflow pueda acceder a los archivos y realizar los siguientes pasos.
+
+      # Paso 2: Acción personalizada que envía el correo
+      - name: Send notification email
+        uses: ./github_actions/send-mail
+        # Esta es una acción personalizada para enviar un correo de notificación.
+
+        env:
+          # Configuración de las credenciales de Gmail desde los secretos de GitHub
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_PASS: ${{ secrets.GMAIL_PASS }}
+        
+        with:
+          # Dirección de correo electrónico a la que se enviará la notificación
+          to: ${{ secrets.PERSONAL_EMAIL }}
+          # Asunto del correo electrónico
+          subject: "Resultat del workflow executat"
+          # Cuerpo del correo electrónico, con los resultados de los jobs anteriores
+          body: |
+            S'ha realitzat un push en la branca main que ha provocat l'execució del workflow nom_repositori_workflow amb els següents resultats:
+
+            - linter_job: ${{ needs.linter_job.result }}
+            - cypress_job: ${{ needs.cypress_job.result }}
+            - add_badge_job: ${{ needs.add_badge_job.result }}
+            - deploy_job: ${{ needs.deploy_job.result }}

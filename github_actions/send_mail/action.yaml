@@ -1,0 +1,29 @@
+name: "Send Mail Action"
+# Este es el nombre de la acción personalizada. Este nombre es usado para describir la acción y puede aparecer en los registros de ejecución.
+description: "Enviar correo con los resultados"
+# Descripción breve de lo que hace la acción personalizada, en este caso, enviar un correo con los resultados.
+
+inputs:
+  # Aquí se definen los parámetros de entrada que necesita la acción para ejecutarse.
+
+  to:
+    required: true
+    # El parámetro 'to' es obligatorio (indicado como 'required: true'), y es la dirección de correo electrónico a la que se enviará el correo.
+
+  subject:
+    required: true
+    # El parámetro 'subject' también es obligatorio y representa el asunto del correo.
+
+  body:
+    required: true
+    # El parámetro 'body' es obligatorio y será el contenido o cuerpo del correo electrónico que se enviará.
+
+runs:
+  using: "node16"
+  # Indica que esta acción personalizada está escrita en Node.js versión 16.
+  # Especifica que el entorno de ejecución para esta acción será Node.js v16.
+  
+  main: "dist/index.js"
+  # 'main' hace referencia al archivo principal de la acción que se ejecutará al invocar la acción.
+  # En este caso, el archivo principal de la acción está ubicado en "dist/index.js". 
+  # Este archivo será el que contenga la lógica para enviar el correo electrónico, utilizando los inputs proporcionados (to, subject, body).
